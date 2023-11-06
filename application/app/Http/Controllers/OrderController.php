@@ -49,7 +49,7 @@ class OrderController extends Controller
         return response()->json(['message' => 'Order placed successfully']);
     }
 
-    private function validateAvailableStock(CreateOrderRequest $request)
+    private function validateAvailableStock(CreateOrderRequest $request): array
     {
         $errors = [];
         $orders = $request->get('products');
