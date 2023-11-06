@@ -15,5 +15,5 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::post('/orders', [OrderController::class, 'placeOrder']);
+Route::post('/orders', [OrderController::class, 'placeOrder'])->name('placeOrder');
 
