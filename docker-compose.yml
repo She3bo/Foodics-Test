@@ -29,6 +29,8 @@ services:
     restart: always
     image: mysql:latest
     platform: linux/x86_64
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     ports:
       - "3306:3306"
     environment:
