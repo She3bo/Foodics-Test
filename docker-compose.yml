@@ -21,11 +21,11 @@ services:
     volumes:
       - ./application/:/var/www/html/
       - ./logs/php.log:/var/log/fpm-php.www.log
-    container_name: php
+    container_name: foodics-test
     expose:
       - "9000"
   mysql:
-    container_name: db
+    container_name: foodics-db
     restart: always
     image: mysql:latest
     platform: linux/x86_64
