@@ -15,6 +15,9 @@ return [
 
     'default' => env('MAIL_MAILER', 'smtp'),
 
+    'stoke_mail' => env('MAIL_STOKE', 'stock@mail.test'),
+
+
     /*
     |--------------------------------------------------------------------------
     | Mailer Configurations
