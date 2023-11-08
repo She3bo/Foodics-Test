@@ -11,6 +11,7 @@
   - php artisan migrate      "create database in your program with name foodics or you can change name but sjould update in env file"
   - php artisan db:seed
   - php artisan queue:work "to disbatch job that sending email"
+  - php artisan test "to run test cases"
 
 
 ## Postman Api collection link 
