@@ -24,6 +24,7 @@ class StockAlertEmail extends Mailable
     }
     public function build()
     {
+        dd($this->product);
         return $this->subject("Stock Alert")
             ->view('emails.stockAlert')->with(['product' => $this->product]);
     }

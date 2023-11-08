@@ -2,8 +2,13 @@
 
 namespace Tests\Feature;
 
+use App\Jobs\SendMail;
+use App\Mail\StockAlertEmail;
+use App\Models\Product;
 use Database\Seeders\ProductIngredientSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Queue;
+use Illuminate\Support\Facades\Mail;
 use Tests\TestCase;
 
 class PlaceOrderTest extends TestCase
@@ -19,16 +24,46 @@ class PlaceOrderTest extends TestCase
     /**
      * A basic feature test example.
      */
-    public function testPlaceOneOrder(): void
-    {
 
+    public function testPlaceOneOrderRequestValidationAndWithoutSendingMai(): void
+    {
+        Mail::fake();
+        Queue::fake();
+        $quantity = 1;
+        $response = $this->postJson(
+            uri: route('placeOrder'),
+            data: [
+            ],
+            headers: [
+                'Accept' => 'application/json',
+                'Content-Type' => 'application/json',
+            ],
+        );
+        $response->assertStatus(422);
+        $this->assertDatabaseCount('orders', 0);
+        Mail::assertNotSent(StockAlertEmail::class);
+        Queue::assertNotPushed(SendMail::class);
+        $response->assertSimilarJson([
+            "message" => "The products field is required.",
+            "errors" => [
+                "products" => [
+                    0 => "The products field is required."
+                ]
+            ]
+        ]);
+    }
+    public function testPlaceOneOrderWithoutSendingMail(): void
+    {
+        Mail::fake();
+        Queue::fake();
+        $quantity = 1;
         $response = $this->postJson(
             uri: route('placeOrder'),
             data: [
                 'products' => [
                     [
                         'product_id' => 1,
-                        'quantity' => 1,
+                        'quantity' => $quantity,
                     ],
                 ],
             ],
@@ -37,7 +72,92 @@ class PlaceOrderTest extends TestCase
                 'Content-Type' => 'application/json',
             ],
         );
+        $product = Product::query()->find(1)->with('ingredients')->first();
         $response->assertStatus(200);
         $this->assertDatabaseCount('orders', 1);
+        $this->assertDatabaseHas('ingredients',[
+            'id' => 1,
+            'stock' => $product->ingredients()->where('id',1)->first()->initial_stock
+                - (($product->ingredients()->where('id',1)->first()->pivot->amount * $quantity) /1000)
+        ]);
+        $this->assertDatabaseHas('ingredients',[
+            'id' => 2,
+            'stock' => $product->ingredients()->where('id',2)->first()->initial_stock
+                - (($product->ingredients()->where('id',2)->first()->pivot->amount * $quantity) /1000)
+        ]);
+        Mail::assertNotSent(StockAlertEmail::class);
+        Queue::assertNotPushed(SendMail::class);
+        $response->assertSimilarJson([
+            "message" => "Order placed successfully",
+        ]);
+    }
+    public function testPlaceOneOrderNotAvailableProductIngredientsWithoutSendingMail(): void
+    {
+        Mail::fake();
+        Queue::fake();
+        $quantity = 100;
+        $response = $this->postJson(
+            uri: route('placeOrder'),
+            data: [
+                'products' => [
+                    [
+                        'product_id' => 1,
+                        'quantity' => $quantity,
+                    ],
+                ],
+            ],
+            headers: [
+                'Accept' => 'application/json',
+                'Content-Type' => 'application/json',
+            ],
+        );
+        $product = Product::query()->find(1)->with('ingredients')->first();
+        $response->assertStatus(422);
+        $this->assertDatabaseCount('orders', 0);
+        Mail::assertNotSent(StockAlertEmail::class);
+        Queue::assertNotPushed(SendMail::class);
+        $response->assertSimilarJson([
+            [
+                "status" => false,
+                "message" => $product->name . ' not enough in stock',
+            ]
+        ]);
+    }
+    public function testPlaceOneOrderWithSendingMail(): void
+    {
+        Queue::fake();
+        $quantity = 25;
+        $response = $this->postJson(
+            uri: route('placeOrder'),
+            data: [
+                'products' => [
+                    [
+                        'product_id' => 1,
+                        'quantity' => $quantity,
+                    ],
+                ],
+            ],
+            headers: [
+                'Accept' => 'application/json',
+                'Content-Type' => 'application/json',
+            ],
+        );
+        $product = Product::query()->find(1)->with('ingredients')->first();
+        $response->assertStatus(200);
+        $this->assertDatabaseCount('orders', 1);
+        $this->assertDatabaseHas('ingredients',[
+            'id' => 1,
+            'stock' => $product->ingredients()->where('id',1)->first()->initial_stock
+                - (($product->ingredients()->where('id',1)->first()->pivot->amount * $quantity) /1000)
+        ]);
+        $this->assertDatabaseHas('ingredients',[
+            'id' => 2,
+            'stock' => $product->ingredients()->where('id',2)->first()->initial_stock
+                - (($product->ingredients()->where('id',2)->first()->pivot->amount * $quantity) /1000)
+        ]);
+        Queue::assertPushed(SendMail::class);
+        $response->assertSimilarJson([
+            "message" => "Order placed successfully",
+        ]);
     }
 }
