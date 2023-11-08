@@ -8,7 +8,7 @@
 - run this command to access the container "docker exec -it foodics-test bash"
   - composer install
   - php artisan key:generate
-  - php artisan migrate      "create database in your program with name foodics or you can change name but sjould update in env file"
+  - php artisan migrate      "create database in your program with name foodics or you can change name but you should update in .env file"
   - php artisan db:seed
   - php artisan queue:work "to disbatch job that sending email"
   - php artisan test "to run test cases"
