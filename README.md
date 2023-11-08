@@ -2,11 +2,11 @@
 
 ## Run this Project
 
-- clone repo and cd to repo dir.
+- clone repo and cd to repo dir
 - copy .env.example .env
 - docker-compose up --build -d
-- access the container docker exec -it foodics-test bash
-  - composer install.
+- run this command to access the container "docker exec -it foodics-test bash"
+  - composer install
   - php artisan key:generate
   - php artisan migrate      "create database in your program with name foodics or you can change name but sjould update in env file"
   - php artisan db:seed
