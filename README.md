@@ -3,7 +3,7 @@
 ## Run this Project
 
 - clone repo and cd to repo dir
-- copy application/.env.example application/.env
+- cp application/.env.example application/.env
 - docker-compose up --build -d
 - run this command to access the container "docker exec -it foodics-test bash"
   - composer install

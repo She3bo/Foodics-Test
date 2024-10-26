@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('name');
             $table->float('stock');
             $table->float('initial_stock');
+            $table->boolean('notified')->default(false);
             $table->timestamps();
         });
     }

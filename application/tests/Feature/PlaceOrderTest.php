@@ -2,7 +2,7 @@
 
 namespace Tests\Feature;
 
-use App\Jobs\SendMail;
+use App\Jobs\LowStockNotification;
 use App\Mail\StockAlertEmail;
 use App\Models\Product;
 use Database\Seeders\ProductIngredientSeeder;
@@ -42,7 +42,7 @@ class PlaceOrderTest extends TestCase
         $response->assertStatus(422);
         $this->assertDatabaseCount('orders', 0);
         Mail::assertNotSent(StockAlertEmail::class);
-        Queue::assertNotPushed(SendMail::class);
+        Queue::assertNotPushed(LowStockNotification::class);
         $response->assertSimilarJson([
             "message" => "The products field is required.",
             "errors" => [
@@ -86,7 +86,7 @@ class PlaceOrderTest extends TestCase
                 - (($product->ingredients()->where('id',2)->first()->pivot->amount * $quantity) /1000)
         ]);
         Mail::assertNotSent(StockAlertEmail::class);
-        Queue::assertNotPushed(SendMail::class);
+        Queue::assertNotPushed(LowStockNotification::class);
         $response->assertSimilarJson([
             "message" => "Order placed successfully",
         ]);
@@ -115,7 +115,7 @@ class PlaceOrderTest extends TestCase
         $response->assertStatus(422);
         $this->assertDatabaseCount('orders', 0);
         Mail::assertNotSent(StockAlertEmail::class);
-        Queue::assertNotPushed(SendMail::class);
+        Queue::assertNotPushed(LowStockNotification::class);
         $response->assertSimilarJson([
             [
                 "status" => false,
@@ -155,7 +155,7 @@ class PlaceOrderTest extends TestCase
             'stock' => $product->ingredients()->where('id',2)->first()->initial_stock
                 - (($product->ingredients()->where('id',2)->first()->pivot->amount * $quantity) /1000)
         ]);
-        Queue::assertPushed(SendMail::class);
+        Queue::assertPushed(LowStockNotification::class);
         $response->assertSimilarJson([
             "message" => "Order placed successfully",
         ]);

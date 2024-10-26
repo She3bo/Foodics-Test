@@ -9,6 +9,6 @@
 <h1> Hello,  </h1>
 
 <p> Stock Alert </p>
-<p>{{$product->name}} stock has less than 50% of ingredient</p>
+<p>This : {{$ingredient->name}} stock has less than 50%</p>
 </body>
 </html>

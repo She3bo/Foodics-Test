@@ -2,30 +2,26 @@
 
 namespace App\Mail;
 
-use App\Models\Product;
+use App\Models\Ingredient;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
-use Illuminate\Mail\Mailables\Content;
-use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
 class StockAlertEmail extends Mailable
 {
     use Queueable, SerializesModels;
 
-    private Product $product;
+    private Ingredient $ingredient;
     /**
      * Create a new message instance.
      */
-    public function __construct(Product $product)
+    public function __construct(Ingredient $ingredient)
     {
-        $this->product = $product;
+        $this->ingredient = $ingredient;
     }
     public function build()
     {
-        dd($this->product);
         return $this->subject("Stock Alert")
-            ->view('emails.stockAlert')->with(['product' => $this->product]);
+            ->view('emails.stockAlert')->with(['ingredient' => $this->ingredient]);
     }
 }
